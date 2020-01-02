@@ -1,0 +1,90 @@
+* {box-sizing: border-box;}
+
+.header {
+	background: lightgrey;
+	text-align: center;
+	padding: 20px;
+}
+
+body {
+	font-family: 'Roboto', sans-serif;
+}
+
+.container,
+.header {
+	max-width: 600px;
+	margin: 0 auto;
+}
+
+ul {
+	margin: 10px 0;
+	padding: 10px 0;
+}
+
+.journeys {
+	list-style-type: none;
+}
+
+.journey-route.active {
+	border: 2px solid green;
+}
+
+.journey-route.active .journey-details {
+	display: block;
+}
+
+.journey-route {
+	border: 1px solid grey;
+	display: flex;
+	margin: 10px 0;
+	cursor: pointer;
+	flex-wrap: wrap;
+	padding: 10px;
+}
+
+.journeys section {
+	padding: 10px 30px 0;
+	display: flex;
+	flex-direction: column;
+}
+
+.journey-route span:first-child {
+	color: lightgrey;
+	font-size: 12px;
+	font-style: italic;
+}
+
+.journeys span {
+
+}
+
+.journey-details {
+	flex: 1 0 100%;
+	align-self: center;
+	margin-left: 30px;
+	display: none;
+}
+
+.journey-buy {
+	align-self: center;
+	text-decoration: none;
+	background-color: #337ab7;
+	color: white;
+	padding: 4px 11px;
+	border-radius: 5px;
+	font-size: 16px;
+}
+
+.journey-ticket {
+	display: flex;
+}
+
+.journey-ticket p {
+	width: 230px;
+	display: flex;
+	flex-direction: column;
+}
+
+.journey-buy:hover {
+	background-color: #83B3DC;
+}

@@ -1,0 +1,25 @@
+<article class="journey-details">
+	<h3>Extra information on this journey:</h3>
+	<h4>
+		<span>Operator:</span>
+		{{operator}} {{^operator}}Unknown{{/operator}}
+	</h4>
+
+	<h5>
+		<span>Duration:</span>
+		{{duration}} minutes
+	</h5>
+
+	<ul>
+		{{#ticketPrices}}
+			<li class="journey-ticket">
+				<p>
+					<span>Ticket Type</span>
+					<span>{{shortName}}</span>
+				</p>
+
+				<a class="journey-buy" href="#">£{{price}}</a>
+			</li>
+		{{/ticketPrices}}
+	</ul>
+</article>

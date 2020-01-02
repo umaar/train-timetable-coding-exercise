@@ -1,0 +1,107 @@
+[
+  {
+    "order": 0,
+    "originStation": "Brighton",
+    "destinationStation": "London Victoria",
+    "operator": "Southern Trains",
+    "startTime": "23:50:00",
+    "arrivalTime": "01:00:00",
+    "ticketPrices": [
+      {
+        "shortName": "Single",
+        "price": 31.2
+      },
+      {
+        "shortName": "1st Class",
+        "price": 45.5
+      }
+    ]
+  },
+  {
+    "order": 3,
+    "originStation": "Brighton",
+    "destinationStation": "London Bridge",
+    "operator": "Southern Trains",
+    "startTime": "15:51:00",
+    "arrivalTime": "18:35:00",
+    "ticketPrices": [
+      {
+        "shortName": "Single",
+        "price": 42.5
+      },
+      {
+        "shortName": "1st Class",
+        "price": 55.8
+      },
+      {
+        "shortName": "Advance Single",
+        "price": 33.1
+      }
+    ]
+  },
+  {
+    "order": 4,
+    "originStation": "Brighton",
+    "destinationStation": "London Victoria",
+    "operator": "Southern Trains",
+    "startTime": "12:43:00",
+    "arrivalTime": "14:23:00",
+    "ticketPrices": [
+      {
+        "shortName": "Single",
+        "price": 31.2
+      },
+      {
+        "shortName": "1st Class",
+        "price": 45.5
+      },
+      {
+        "shortName": "Advance Single",
+        "price": 22.2
+      }
+    ]
+  },
+  {
+    "order": 1,
+    "originStation": "Brighton",
+    "destinationStation": "London Bridge",
+    "startTime": "10:25:00",
+    "arrivalTime": "12:00:00",
+    "ticketPrices": [
+      {
+        "shortName": "Single",
+        "price": 42.5
+      },
+      {
+        "shortName": "1st Class",
+        "price": 55.8
+      },
+      {
+        "shortName": "Advance Single",
+        "price": 33.1
+      }
+    ]
+  },
+  {
+    "order": 2,
+    "originStation": "Brighton",
+    "destinationStation": "London Victoria",
+    "operator": "Southern Trains",
+    "startTime": "17:00:00",
+    "arrivalTime": "19:00:00",
+    "ticketPrices": [
+      {
+        "shortName": "Single",
+        "price": 31.2
+      },
+      {
+        "shortName": "1st Class",
+        "price": 45.5
+      },
+      {
+        "shortName": "Advance Single",
+        "price": 22.2
+      }
+    ]
+  }
+]
