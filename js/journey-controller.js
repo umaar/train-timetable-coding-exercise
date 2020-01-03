@@ -1,32 +1,32 @@
-import journeyModel from './journeyModel';
-import Mustache from 'mustache';
+import mustache from '../node_modules/mustache/mustache.mjs';
+import journeyModel from './journey-model.js';
 
 function getTemplate(path) {
-	return fetch(path).then(response => response.text());
+	return window.fetch(path).then(response => response.text());
 }
 
 async function serve() {
 	const journeys = await journeyModel.getJourneys();
 	const template = await getTemplate('templates/journeys.mustache');
-	const markup = Mustache.render(template, {journeys});
+	const markup = mustache.render(template, {journeys});
 	$('.journeys').append(markup);
 }
 
 async function journeyDetailView() {
-	const journeyEl = $(this);
-	const order = journeyEl.data('order');
+	const journeyElement = $(this);
+	const order = journeyElement.data('order');
 	const template = await getTemplate('templates/journeyDetails.mustache');
 	const journey = await journeyModel.getJourneyDetails(order);
 	const duration = journeyModel.getJourneyDuration(journey);
 	const templateData = Object.assign({}, journey, {duration});
-	const markup = Mustache.render(template, templateData);
-	journeyEl.find('.journey-details').remove();
-	journeyEl.append(markup);
-	journeyEl.toggleClass('active');
+	const markup = mustache.render(template, templateData);
+	journeyElement.find('.journey-details').remove();
+	journeyElement.append(markup);
+	journeyElement.toggleClass('active');
 }
 
 function attachJourneyDetailListener() {
-	$('.journeys').on('click', 'li', journeyDetailView)
+	$('.journeys').on('click', '.journey-route', journeyDetailView);
 }
 
 function init() {

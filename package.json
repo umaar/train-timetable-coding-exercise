@@ -1,30 +1,30 @@
 {
-  "name": "train-timetable-exercise",
+  "name": "train-timetable-coding-exercise",
   "version": "1.0.0",
   "description": "",
-  "main": "gulpfile.js",
+  "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "xo"
   },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/umaar/train-timetable-coding-exercise.git"
+  },
+  "keywords": [],
   "author": "",
   "license": "ISC",
-  "devDependencies": {
-    "gulp": "^3.9.0",
-    "gulp-webserver": "^0.9.1",
-    "jspm": "^0.16.34"
+  "bugs": {
+    "url": "https://github.com/umaar/train-timetable-coding-exercise/issues"
   },
-  "jspm": {
-    "directories": {
-      "baseURL": "src"
-    },
-    "dependencies": {
-      "fetch": "github:github/fetch@^1.0.0",
-      "mustache": "github:janl/mustache.js@^2.2.1"
-    },
-    "devDependencies": {
-      "babel": "npm:babel-core@^5.8.24",
-      "babel-runtime": "npm:babel-runtime@^5.8.24",
-      "core-js": "npm:core-js@^1.1.4"
-    }
+  "homepage": "https://github.com/umaar/train-timetable-coding-exercise#readme",
+  "dependencies": {
+    "mustache": "^3.2.1"
+  },
+  "devDependencies": {
+    "xo": "^0.25.3",
+    "@umaar/personal-eslint-config": "latest"
+  },
+  "xo": {
+    "extends": "./node_modules/@umaar/personal-eslint-config/rules.json"
   }
 }
