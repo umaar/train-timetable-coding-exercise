@@ -1,3 +1,4 @@
+/* global $, window */
 import mustache from '../node_modules/mustache/mustache.mjs';
 import journeyModel from './journey-model.js';
 

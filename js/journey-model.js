@@ -1,3 +1,5 @@
+/* global window */
+
 function fetchData(file) {
 	return window.fetch(file).then(response => response.json());
 }
