@@ -8,6 +8,7 @@ function getTemplate(path) {
 
 async function serve() {
 	const journeys = await journeyModel.getJourneys();
+	console.log(journeys);
 	const template = await getTemplate('templates/journeys.mustache');
 	const markup = mustache.render(template, {journeys});
 	$('.journeys').append(markup);

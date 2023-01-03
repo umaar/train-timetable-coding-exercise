@@ -7,6 +7,7 @@ function fetchData(file) {
 async function getJourneys() {
 	const allJourneys = await fetchData('data/journeysWithPrices.json');
 	return allJourneys.sort((a, b) => {
+		console.log(a);
 		if (a.order < b.order) {
 			return -1;
 		}

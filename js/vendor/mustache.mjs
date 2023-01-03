@@ -3,82 +3,82 @@
  * http://github.com/janl/mustache.js
  */
 
-var objectToString = Object.prototype.toString;
-var isArray = Array.isArray || function isArrayPolyfill (object) {
-  return objectToString.call(object) === '[object Array]';
+const objectToString = Object.prototype.toString;
+const isArray = Array.isArray || function isArrayPolyfill(object) {
+	return objectToString.call(object) === '[object Array]';
 };
 
-function isFunction (object) {
-  return typeof object === 'function';
+function isFunction(object) {
+	return typeof object === 'function';
 }
 
 /**
  * More correct typeof string handling array
  * which normally returns typeof 'object'
  */
-function typeStr (obj) {
-  return isArray(obj) ? 'array' : typeof obj;
+function typeString(object) {
+	return isArray(object) ? 'array' : typeof object;
 }
 
-function escapeRegExp (string) {
-  return string.replace(/[\-\[\]{}()*+?.,\\\^$|#\s]/g, '\\$&');
+function escapeRegExp(string) {
+	return string.replace(/[\-[\]{}()*+?.,\\^$|#\s]/g, '\\$&');
 }
 
 /**
  * Null safe way of checking whether or not an object,
  * including its prototype, has a given property
  */
-function hasProperty (obj, propName) {
-  return obj != null && typeof obj === 'object' && (propName in obj);
+function hasProperty(object, propertyName) {
+	return object != null && typeof object === 'object' && (propertyName in object);
 }
 
 /**
  * Safe way of detecting whether or not the given thing is a primitive and
  * whether it has the given property
  */
-function primitiveHasOwnProperty (primitive, propName) {
-  return (
-    primitive != null
+function primitiveHasOwnProperty(primitive, propertyName) {
+	return (
+		primitive != null
     && typeof primitive !== 'object'
     && primitive.hasOwnProperty
-    && primitive.hasOwnProperty(propName)
-  );
+    && primitive.hasOwnProperty(propertyName)
+	);
 }
 
 // Workaround for https://issues.apache.org/jira/browse/COUCHDB-577
 // See https://github.com/janl/mustache.js/issues/189
-var regExpTest = RegExp.prototype.test;
-function testRegExp (re, string) {
-  return regExpTest.call(re, string);
+const regExpTest = RegExp.prototype.test;
+function testRegExp(re, string) {
+	return regExpTest.call(re, string);
 }
 
-var nonSpaceRe = /\S/;
-function isWhitespace (string) {
-  return !testRegExp(nonSpaceRe, string);
+const nonSpaceRe = /\S/;
+function isWhitespace(string) {
+	return !testRegExp(nonSpaceRe, string);
 }
 
-var entityMap = {
-  '&': '&amp;',
-  '<': '&lt;',
-  '>': '&gt;',
-  '"': '&quot;',
-  "'": '&#39;',
-  '/': '&#x2F;',
-  '`': '&#x60;',
-  '=': '&#x3D;'
+const entityMap = {
+	'&': '&amp;',
+	'<': '&lt;',
+	'>': '&gt;',
+	'"': '&quot;',
+	'\'': '&#39;',
+	'/': '&#x2F;',
+	'`': '&#x60;',
+	'=': '&#x3D;',
 };
 
-function escapeHtml (string) {
-  return String(string).replace(/[&<>"'`=\/]/g, function fromEntityMap (s) {
-    return entityMap[s];
-  });
+function escapeHtml(string) {
+	return String(string).replace(/[&<>"'`=/]/g, function fromEntityMap(s) {
+		return entityMap[s];
+	});
 }
 
-var whiteRe = /\s*/;
-var spaceRe = /\s+/;
-var equalsRe = /\s*=/;
-var curlyRe = /\s*\}/;
-var tagRe = /#|\^|\/|>|\{|&|=|!/;
+const whiteRe = /\s*/;
+const spaceRe = /\s+/;
+const equalsRe = /\s*=/;
+const curlyRe = /\s*}/;
+const tagRe = /[!#&/=>^{]/;
 
 /**
  * Breaks up the given `template` string into a tree of tokens. If the `tags`
@@ -106,171 +106,198 @@ var tagRe = /#|\^|\/|>|\{|&|=|!/;
  * indendation prior to that tag and 2) the index of that tag on that line -
  * eg a value of 2 indicates the partial is the third tag on this line.
  */
-function parseTemplate (template, tags) {
-  if (!template)
-    return [];
-  var lineHasNonSpace = false;
-  var sections = [];     // Stack to hold section tokens
-  var tokens = [];       // Buffer to hold the tokens
-  var spaces = [];       // Indices of whitespace tokens on the current line
-  var hasTag = false;    // Is there a {{tag}} on the current line?
-  var nonSpace = false;  // Is there a non-space char on the current line?
-  var indentation = '';  // Tracks indentation for tags that use it
-  var tagIndex = 0;      // Stores a count of number of tags encountered on a line
+function parseTemplate(template, tags) {
+	if (!template) {
+		return [];
+	}
 
-  // Strips all whitespace tokens array for the current line
-  // if there was a {{#tag}} on it and otherwise only space.
-  function stripSpace () {
-    if (hasTag && !nonSpace) {
-      while (spaces.length)
-        delete tokens[spaces.pop()];
-    } else {
-      spaces = [];
-    }
+	let lineHasNonSpace = false;
+	const sections = []; // Stack to hold section tokens
+	const tokens = []; // Buffer to hold the tokens
+	let spaces = []; // Indices of whitespace tokens on the current line
+	let hasTag = false; // Is there a {{tag}} on the current line?
+	let nonSpace = false; // Is there a non-space char on the current line?
+	let indentation = ''; // Tracks indentation for tags that use it
+	let tagIndex = 0; // Stores a count of number of tags encountered on a line
 
-    hasTag = false;
-    nonSpace = false;
-  }
+	// Strips all whitespace tokens array for the current line
+	// if there was a {{#tag}} on it and otherwise only space.
+	function stripSpace() {
+		if (hasTag && !nonSpace) {
+			while (spaces.length > 0) {
+				delete tokens[spaces.pop()];
+			}
+		} else {
+			spaces = [];
+		}
 
-  var openingTagRe, closingTagRe, closingCurlyRe;
-  function compileTags (tagsToCompile) {
-    if (typeof tagsToCompile === 'string')
-      tagsToCompile = tagsToCompile.split(spaceRe, 2);
+		hasTag = false;
+		nonSpace = false;
+	}
 
-    if (!isArray(tagsToCompile) || tagsToCompile.length !== 2)
-      throw new Error('Invalid tags: ' + tagsToCompile);
+	let openingTagRe; let closingTagRe; let closingCurlyRe;
+	function compileTags(tagsToCompile) {
+		if (typeof tagsToCompile === 'string') {
+			tagsToCompile = tagsToCompile.split(spaceRe, 2);
+		}
 
-    openingTagRe = new RegExp(escapeRegExp(tagsToCompile[0]) + '\\s*');
-    closingTagRe = new RegExp('\\s*' + escapeRegExp(tagsToCompile[1]));
-    closingCurlyRe = new RegExp('\\s*' + escapeRegExp('}' + tagsToCompile[1]));
-  }
+		if (!isArray(tagsToCompile) || tagsToCompile.length !== 2) {
+			throw new Error('Invalid tags: ' + tagsToCompile);
+		}
 
-  compileTags(tags || mustache.tags);
+		openingTagRe = new RegExp(escapeRegExp(tagsToCompile[0]) + '\\s*');
+		closingTagRe = new RegExp('\\s*' + escapeRegExp(tagsToCompile[1]));
+		closingCurlyRe = new RegExp('\\s*' + escapeRegExp('}' + tagsToCompile[1]));
+	}
 
-  var scanner = new Scanner(template);
+	compileTags(tags || mustache.tags);
 
-  var start, type, value, chr, token, openSection;
-  while (!scanner.eos()) {
-    start = scanner.pos;
+	const scanner = new Scanner(template);
 
-    // Match any text between tags.
-    value = scanner.scanUntil(openingTagRe);
+	let start; let type; let value; let chr; let token; let openSection;
+	while (!scanner.eos()) {
+		start = scanner.pos;
 
-    if (value) {
-      for (var i = 0, valueLength = value.length; i < valueLength; ++i) {
-        chr = value.charAt(i);
+		// Match any text between tags.
+		value = scanner.scanUntil(openingTagRe);
 
-        if (isWhitespace(chr)) {
-          spaces.push(tokens.length);
-          indentation += chr;
-        } else {
-          nonSpace = true;
-          lineHasNonSpace = true;
-          indentation += ' ';
-        }
+		if (value) {
+			for (let index = 0, valueLength = value.length; index < valueLength; ++index) {
+				chr = value.charAt(index);
 
-        tokens.push([ 'text', chr, start, start + 1 ]);
-        start += 1;
+				if (isWhitespace(chr)) {
+					spaces.push(tokens.length);
+					indentation += chr;
+				} else {
+					nonSpace = true;
+					lineHasNonSpace = true;
+					indentation += ' ';
+				}
 
-        // Check for whitespace on the current line.
-        if (chr === '\n') {
-          stripSpace();
-          indentation = '';
-          tagIndex = 0;
-          lineHasNonSpace = false;
-        }
-      }
-    }
+				tokens.push(['text', chr, start, start + 1]);
+				start += 1;
 
-    // Match the opening tag.
-    if (!scanner.scan(openingTagRe))
-      break;
+				// Check for whitespace on the current line.
+				if (chr === '\n') {
+					stripSpace();
+					indentation = '';
+					tagIndex = 0;
+					lineHasNonSpace = false;
+				}
+			}
+		}
 
-    hasTag = true;
+		// Match the opening tag.
+		if (!scanner.scan(openingTagRe)) {
+			break;
+		}
 
-    // Get the tag type.
-    type = scanner.scan(tagRe) || 'name';
-    scanner.scan(whiteRe);
+		hasTag = true;
 
-    // Get the tag value.
-    if (type === '=') {
-      value = scanner.scanUntil(equalsRe);
-      scanner.scan(equalsRe);
-      scanner.scanUntil(closingTagRe);
-    } else if (type === '{') {
-      value = scanner.scanUntil(closingCurlyRe);
-      scanner.scan(curlyRe);
-      scanner.scanUntil(closingTagRe);
-      type = '&';
-    } else {
-      value = scanner.scanUntil(closingTagRe);
-    }
+		// Get the tag type.
+		type = scanner.scan(tagRe) || 'name';
+		scanner.scan(whiteRe);
 
-    // Match the closing tag.
-    if (!scanner.scan(closingTagRe))
-      throw new Error('Unclosed tag at ' + scanner.pos);
+		// Get the tag value.
+		if (type === '=') {
+			value = scanner.scanUntil(equalsRe);
+			scanner.scan(equalsRe);
+			scanner.scanUntil(closingTagRe);
+		} else if (type === '{') {
+			value = scanner.scanUntil(closingCurlyRe);
+			scanner.scan(curlyRe);
+			scanner.scanUntil(closingTagRe);
+			type = '&';
+		} else {
+			value = scanner.scanUntil(closingTagRe);
+		}
 
-    if (type == '>') {
-      token = [ type, value, start, scanner.pos, indentation, tagIndex, lineHasNonSpace ];
-    } else {
-      token = [ type, value, start, scanner.pos ];
-    }
-    tagIndex++;
-    tokens.push(token);
+		// Match the closing tag.
+		if (!scanner.scan(closingTagRe)) {
+			throw new Error('Unclosed tag at ' + scanner.pos);
+		}
 
-    if (type === '#' || type === '^') {
-      sections.push(token);
-    } else if (type === '/') {
-      // Check section nesting.
-      openSection = sections.pop();
+		token = type == '>' ? [type, value, start, scanner.pos, indentation, tagIndex, lineHasNonSpace] : [type, value, start, scanner.pos];
 
-      if (!openSection)
-        throw new Error('Unopened section "' + value + '" at ' + start);
+		tagIndex++;
+		tokens.push(token);
 
-      if (openSection[1] !== value)
-        throw new Error('Unclosed section "' + openSection[1] + '" at ' + start);
-    } else if (type === 'name' || type === '{' || type === '&') {
-      nonSpace = true;
-    } else if (type === '=') {
-      // Set the tags for the next time around.
-      compileTags(value);
-    }
-  }
+		switch (type) {
+			case '#':
+			case '^': {
+				sections.push(token);
 
-  stripSpace();
+				break;
+			}
 
-  // Make sure there are no open sections when we're done.
-  openSection = sections.pop();
+			case '/': {
+			// Check section nesting.
+				openSection = sections.pop();
 
-  if (openSection)
-    throw new Error('Unclosed section "' + openSection[1] + '" at ' + scanner.pos);
+				if (!openSection) {
+					throw new Error('Unopened section "' + value + '" at ' + start);
+				}
 
-  return nestTokens(squashTokens(tokens));
+				if (openSection[1] !== value) {
+					throw new Error('Unclosed section "' + openSection[1] + '" at ' + start);
+				}
+
+				break;
+			}
+
+			case 'name':
+			case '{':
+			case '&': {
+				nonSpace = true;
+
+				break;
+			}
+
+			case '=': {
+			// Set the tags for the next time around.
+				compileTags(value);
+
+				break;
+			}
+		// No default
+		}
+	}
+
+	stripSpace();
+
+	// Make sure there are no open sections when we're done.
+	openSection = sections.pop();
+
+	if (openSection) {
+		throw new Error('Unclosed section "' + openSection[1] + '" at ' + scanner.pos);
+	}
+
+	return nestTokens(squashTokens(tokens));
 }
 
 /**
  * Combines the values of consecutive text tokens in the given `tokens` array
  * to a single token.
  */
-function squashTokens (tokens) {
-  var squashedTokens = [];
+function squashTokens(tokens) {
+	const squashedTokens = [];
 
-  var token, lastToken;
-  for (var i = 0, numTokens = tokens.length; i < numTokens; ++i) {
-    token = tokens[i];
+	let token; let lastToken;
+	for (let index = 0, numberTokens = tokens.length; index < numberTokens; ++index) {
+		token = tokens[index];
 
-    if (token) {
-      if (token[0] === 'text' && lastToken && lastToken[0] === 'text') {
-        lastToken[1] += token[1];
-        lastToken[3] = token[3];
-      } else {
-        squashedTokens.push(token);
-        lastToken = token;
-      }
-    }
-  }
+		if (token) {
+			if (token[0] === 'text' && lastToken && lastToken[0] === 'text') {
+				lastToken[1] += token[1];
+				lastToken[3] = token[3];
+			} else {
+				squashedTokens.push(token);
+				lastToken = token;
+			}
+		}
+	}
 
-  return squashedTokens;
+	return squashedTokens;
 }
 
 /**
@@ -279,133 +306,136 @@ function squashTokens (tokens) {
  * all tokens that appear in that section and 2) the index in the original
  * template that represents the end of that section.
  */
-function nestTokens (tokens) {
-  var nestedTokens = [];
-  var collector = nestedTokens;
-  var sections = [];
+function nestTokens(tokens) {
+	const nestedTokens = [];
+	let collector = nestedTokens;
+	const sections = [];
 
-  var token, section;
-  for (var i = 0, numTokens = tokens.length; i < numTokens; ++i) {
-    token = tokens[i];
+	let token; let section;
+	for (let index = 0, numberTokens = tokens.length; index < numberTokens; ++index) {
+		token = tokens[index];
 
-    switch (token[0]) {
-      case '#':
-      case '^':
-        collector.push(token);
-        sections.push(token);
-        collector = token[4] = [];
-        break;
-      case '/':
-        section = sections.pop();
-        section[5] = token[2];
-        collector = sections.length > 0 ? sections[sections.length - 1][4] : nestedTokens;
-        break;
-      default:
-        collector.push(token);
-    }
-  }
+		switch (token[0]) {
+			case '#':
+			case '^':
+				collector.push(token);
+				sections.push(token);
+				collector = token[4] = [];
+				break;
+			case '/':
+				section = sections.pop();
+				section[5] = token[2];
+				collector = sections.length > 0 ? sections[sections.length - 1][4] : nestedTokens;
+				break;
+			default:
+				collector.push(token);
+		}
+	}
 
-  return nestedTokens;
+	return nestedTokens;
 }
 
 /**
  * A simple string scanner that is used by the template parser to find
  * tokens in template strings.
  */
-function Scanner (string) {
-  this.string = string;
-  this.tail = string;
-  this.pos = 0;
+function Scanner(string) {
+	this.string = string;
+	this.tail = string;
+	this.pos = 0;
 }
 
 /**
  * Returns `true` if the tail is empty (end of string).
  */
-Scanner.prototype.eos = function eos () {
-  return this.tail === '';
+Scanner.prototype.eos = function eos() {
+	return this.tail === '';
 };
 
 /**
  * Tries to match the given regular expression at the current position.
  * Returns the matched text if it can match, the empty string otherwise.
  */
-Scanner.prototype.scan = function scan (re) {
-  var match = this.tail.match(re);
+Scanner.prototype.scan = function scan(re) {
+	const match = this.tail.match(re);
 
-  if (!match || match.index !== 0)
-    return '';
+	if (!match || match.index !== 0) {
+		return '';
+	}
 
-  var string = match[0];
+	const string = match[0];
 
-  this.tail = this.tail.substring(string.length);
-  this.pos += string.length;
+	this.tail = this.tail.slice(string.length);
+	this.pos += string.length;
 
-  return string;
+	return string;
 };
 
 /**
  * Skips all text until the given regular expression can be matched. Returns
  * the skipped string, which is the entire tail if no match can be made.
  */
-Scanner.prototype.scanUntil = function scanUntil (re) {
-  var index = this.tail.search(re), match;
+Scanner.prototype.scanUntil = function scanUntil(re) {
+	const index = this.tail.search(re); let
+		match;
 
-  switch (index) {
-    case -1:
-      match = this.tail;
-      this.tail = '';
-      break;
-    case 0:
-      match = '';
-      break;
-    default:
-      match = this.tail.substring(0, index);
-      this.tail = this.tail.substring(index);
-  }
+	switch (index) {
+		case -1:
+			match = this.tail;
+			this.tail = '';
+			break;
+		case 0:
+			match = '';
+			break;
+		default:
+			match = this.tail.slice(0, Math.max(0, index));
+			this.tail = this.tail.slice(Math.max(0, index));
+	}
 
-  this.pos += match.length;
+	this.pos += match.length;
 
-  return match;
+	return match;
 };
 
 /**
  * Represents a rendering context by wrapping a view object and
  * maintaining a reference to the parent context.
  */
-function Context (view, parentContext) {
-  this.view = view;
-  this.cache = { '.': this.view };
-  this.parent = parentContext;
+function Context(view, parentContext) {
+	this.view = view;
+	this.cache = {'.': this.view};
+	this.parent = parentContext;
 }
 
 /**
  * Creates a new context using the given view with this context
  * as the parent.
  */
-Context.prototype.push = function push (view) {
-  return new Context(view, this);
+Context.prototype.push = function push(view) {
+	return new Context(view, this);
 };
 
 /**
  * Returns the value of the given name in this context, traversing
  * up the context hierarchy if the value is absent in this context's view.
  */
-Context.prototype.lookup = function lookup (name) {
-  var cache = this.cache;
+Context.prototype.lookup = function lookup(name) {
+	const cache = this.cache;
 
-  var value;
-  if (cache.hasOwnProperty(name)) {
-    value = cache[name];
-  } else {
-    var context = this, intermediateValue, names, index, lookupHit = false;
+	let value;
+	if (cache.hasOwnProperty(name)) {
+		value = cache[name];
+	} else {
+		let context = this; let intermediateValue; let names; let index; let
+			lookupHit = false;
 
-    while (context) {
-      if (name.indexOf('.') > 0) {
-        intermediateValue = context.view;
-        names = name.split('.');
-        index = 0;
+		while (context) {
+			if (name.indexOf('.') > 0) {
+				intermediateValue = context.view;
+				names = name.split('.');
+				index = 0;
 
-        /**
+				/**
          * Using the dot notion path in `name`, we descend through the
          * nested objects.
          *
@@ -422,19 +452,20 @@ Context.prototype.lookup = function lookup (name) {
          * integer), because it is sometimes useful to access a property
          * of an autoboxed primitive, such as the length of a string.
          **/
-        while (intermediateValue != null && index < names.length) {
-          if (index === names.length - 1)
-            lookupHit = (
-              hasProperty(intermediateValue, names[index])
+				while (intermediateValue != null && index < names.length) {
+					if (index === names.length - 1) {
+						lookupHit = (
+							hasProperty(intermediateValue, names[index])
               || primitiveHasOwnProperty(intermediateValue, names[index])
-            );
+						);
+					}
 
-          intermediateValue = intermediateValue[names[index++]];
-        }
-      } else {
-        intermediateValue = context.view[name];
+					intermediateValue = intermediateValue[names[index++]];
+				}
+			} else {
+				intermediateValue = context.view[name];
 
-        /**
+				/**
          * Only checking against `hasProperty`, which always returns `false` if
          * `context.view` is not an object. Deliberately omitting the check
          * against `primitiveHasOwnProperty` if dot notation is not used.
@@ -453,24 +484,25 @@ Context.prototype.lookup = function lookup (name) {
          *
          * "The length of a football field is 100 yards."
          **/
-        lookupHit = hasProperty(context.view, name);
-      }
+				lookupHit = hasProperty(context.view, name);
+			}
 
-      if (lookupHit) {
-        value = intermediateValue;
-        break;
-      }
+			if (lookupHit) {
+				value = intermediateValue;
+				break;
+			}
 
-      context = context.parent;
-    }
+			context = context.parent;
+		}
 
-    cache[name] = value;
-  }
+		cache[name] = value;
+	}
 
-  if (isFunction(value))
-    value = value.call(this.view);
+	if (isFunction(value)) {
+		value = value.call(this.view);
+	}
 
-  return value;
+	return value;
 };
 
 /**
@@ -478,28 +510,28 @@ Context.prototype.lookup = function lookup (name) {
  * string, given a context. It also maintains a cache of templates to
  * avoid the need to parse the same template twice.
  */
-function Writer () {
-  this.templateCache = {
-    _cache: {},
-    set: function set (key, value) {
-      this._cache[key] = value;
-    },
-    get: function get (key) {
-      return this._cache[key];
-    },
-    clear: function clear () {
-      this._cache = {};
-    }
-  };
+function Writer() {
+	this.templateCache = {
+		_cache: {},
+		set: function set(key, value) {
+			this._cache[key] = value;
+		},
+		get: function get(key) {
+			return this._cache[key];
+		},
+		clear: function clear() {
+			this._cache = {};
+		},
+	};
 }
 
 /**
  * Clears all cached templates in this writer.
  */
-Writer.prototype.clearCache = function clearCache () {
-  if (typeof this.templateCache !== 'undefined') {
-    this.templateCache.clear();
-  }
+Writer.prototype.clearCache = function clearCache() {
+	if (typeof this.templateCache !== 'undefined') {
+		this.templateCache.clear();
+	}
 };
 
 /**
@@ -507,17 +539,18 @@ Writer.prototype.clearCache = function clearCache () {
  * `mustache.tags` if `tags` is omitted,  and returns the array of tokens
  * that is generated from the parse.
  */
-Writer.prototype.parse = function parse (template, tags) {
-  var cache = this.templateCache;
-  var cacheKey = template + ':' + (tags || mustache.tags).join(':');
-  var isCacheEnabled = typeof cache !== 'undefined';
-  var tokens = isCacheEnabled ? cache.get(cacheKey) : undefined;
+Writer.prototype.parse = function parse(template, tags) {
+	const cache = this.templateCache;
+	const cacheKey = template + ':' + (tags || mustache.tags).join(':');
+	const isCacheEnabled = typeof cache !== 'undefined';
+	let tokens = isCacheEnabled ? cache.get(cacheKey) : undefined;
 
-  if (tokens == undefined) {
-    tokens = parseTemplate(template, tags);
-    isCacheEnabled && cache.set(cacheKey, tokens);
-  }
-  return tokens;
+	if (tokens == undefined) {
+		tokens = parseTemplate(template, tags);
+		isCacheEnabled && cache.set(cacheKey, tokens);
+	}
+
+	return tokens;
 };
 
 /**
@@ -533,10 +566,10 @@ Writer.prototype.parse = function parse (template, tags) {
  * string values: the opening and closing tags used in the template (e.g.
  * [ "<%", "%>" ]). The default is to mustache.tags.
  */
-Writer.prototype.render = function render (template, view, partials, tags) {
-  var tokens = this.parse(template, tags);
-  var context = (view instanceof Context) ? view : new Context(view, undefined);
-  return this.renderTokens(tokens, context, partials, template, tags);
+Writer.prototype.render = function render(template, view, partials, tags) {
+	const tokens = this.parse(template, tags);
+	const context = (view instanceof Context) ? view : new Context(view, undefined);
+	return this.renderTokens(tokens, context, partials, template, tags);
 };
 
 /**
@@ -548,140 +581,173 @@ Writer.prototype.render = function render (template, view, partials, tags) {
  * If the template doesn't use higher-order sections, this argument may
  * be omitted.
  */
-Writer.prototype.renderTokens = function renderTokens (tokens, context, partials, originalTemplate, tags) {
-  var buffer = '';
+Writer.prototype.renderTokens = function renderTokens(tokens, context, partials, originalTemplate, tags) {
+	let buffer = '';
 
-  var token, symbol, value;
-  for (var i = 0, numTokens = tokens.length; i < numTokens; ++i) {
-    value = undefined;
-    token = tokens[i];
-    symbol = token[0];
+	let token; let symbol; let value;
+	for (let index = 0, numberTokens = tokens.length; index < numberTokens; ++index) {
+		value = undefined;
+		token = tokens[index];
+		symbol = token[0];
 
-    if (symbol === '#') value = this.renderSection(token, context, partials, originalTemplate);
-    else if (symbol === '^') value = this.renderInverted(token, context, partials, originalTemplate);
-    else if (symbol === '>') value = this.renderPartial(token, context, partials, tags);
-    else if (symbol === '&') value = this.unescapedValue(token, context);
-    else if (symbol === 'name') value = this.escapedValue(token, context);
-    else if (symbol === 'text') value = this.rawValue(token);
+		switch (symbol) {
+			case '#': {value = this.renderSection(token, context, partials, originalTemplate);
+				break;
+			}
 
-    if (value !== undefined)
-      buffer += value;
-  }
+			case '^': {value = this.renderInverted(token, context, partials, originalTemplate);
+				break;
+			}
 
-  return buffer;
+			case '>': {value = this.renderPartial(token, context, partials, tags);
+				break;
+			}
+
+			case '&': {value = this.unescapedValue(token, context);
+				break;
+			}
+
+			case 'name': {value = this.escapedValue(token, context);
+				break;
+			}
+
+			case 'text': {value = this.rawValue(token);
+				break;
+			}
+		// No default
+		}
+
+		if (value !== undefined) {
+			buffer += value;
+		}
+	}
+
+	return buffer;
 };
 
-Writer.prototype.renderSection = function renderSection (token, context, partials, originalTemplate) {
-  var self = this;
-  var buffer = '';
-  var value = context.lookup(token[1]);
+Writer.prototype.renderSection = function renderSection(token, context, partials, originalTemplate) {
+	const self = this;
+	let buffer = '';
+	let value = context.lookup(token[1]);
 
-  // This function is used to render an arbitrary template
-  // in the current context by higher-order sections.
-  function subRender (template) {
-    return self.render(template, context, partials);
-  }
+	// This function is used to render an arbitrary template
+	// in the current context by higher-order sections.
+	function subRender(template) {
+		return self.render(template, context, partials);
+	}
 
-  if (!value) return;
+	if (!value) {
+		return;
+	}
 
-  if (isArray(value)) {
-    for (var j = 0, valueLength = value.length; j < valueLength; ++j) {
-      buffer += this.renderTokens(token[4], context.push(value[j]), partials, originalTemplate);
-    }
-  } else if (typeof value === 'object' || typeof value === 'string' || typeof value === 'number') {
-    buffer += this.renderTokens(token[4], context.push(value), partials, originalTemplate);
-  } else if (isFunction(value)) {
-    if (typeof originalTemplate !== 'string')
-      throw new Error('Cannot use higher-order sections without the original template');
+	if (isArray(value)) {
+		for (let index = 0, valueLength = value.length; index < valueLength; ++index) {
+			buffer += this.renderTokens(token[4], context.push(value[index]), partials, originalTemplate);
+		}
+	} else if (typeof value === 'object' || typeof value === 'string' || typeof value === 'number') {
+		buffer += this.renderTokens(token[4], context.push(value), partials, originalTemplate);
+	} else if (isFunction(value)) {
+		if (typeof originalTemplate !== 'string') {
+			throw new TypeError('Cannot use higher-order sections without the original template');
+		}
 
-    // Extract the portion of the original template that the section contains.
-    value = value.call(context.view, originalTemplate.slice(token[3], token[5]), subRender);
+		// Extract the portion of the original template that the section contains.
+		value = value.call(context.view, originalTemplate.slice(token[3], token[5]), subRender);
 
-    if (value != null)
-      buffer += value;
-  } else {
-    buffer += this.renderTokens(token[4], context, partials, originalTemplate);
-  }
-  return buffer;
+		if (value != null) {
+			buffer += value;
+		}
+	} else {
+		buffer += this.renderTokens(token[4], context, partials, originalTemplate);
+	}
+
+	return buffer;
 };
 
-Writer.prototype.renderInverted = function renderInverted (token, context, partials, originalTemplate) {
-  var value = context.lookup(token[1]);
+Writer.prototype.renderInverted = function renderInverted(token, context, partials, originalTemplate) {
+	const value = context.lookup(token[1]);
 
-  // Use JavaScript's definition of falsy. Include empty arrays.
-  // See https://github.com/janl/mustache.js/issues/186
-  if (!value || (isArray(value) && value.length === 0))
-    return this.renderTokens(token[4], context, partials, originalTemplate);
+	// Use JavaScript's definition of falsy. Include empty arrays.
+	// See https://github.com/janl/mustache.js/issues/186
+	if (!value || (isArray(value) && value.length === 0)) {
+		return this.renderTokens(token[4], context, partials, originalTemplate);
+	}
 };
 
-Writer.prototype.indentPartial = function indentPartial (partial, indentation, lineHasNonSpace) {
-  var filteredIndentation = indentation.replace(/[^ \t]/g, '');
-  var partialByNl = partial.split('\n');
-  for (var i = 0; i < partialByNl.length; i++) {
-    if (partialByNl[i].length && (i > 0 || !lineHasNonSpace)) {
-      partialByNl[i] = filteredIndentation + partialByNl[i];
-    }
-  }
-  return partialByNl.join('\n');
+Writer.prototype.indentPartial = function indentPartial(partial, indentation, lineHasNonSpace) {
+	const filteredIndentation = indentation.replace(/[^ \t]/g, '');
+	const partialByNl = partial.split('\n');
+	for (let index = 0; index < partialByNl.length; index++) {
+		if (partialByNl[index].length > 0 && (index > 0 || !lineHasNonSpace)) {
+			partialByNl[index] = filteredIndentation + partialByNl[index];
+		}
+	}
+
+	return partialByNl.join('\n');
 };
 
-Writer.prototype.renderPartial = function renderPartial (token, context, partials, tags) {
-  if (!partials) return;
+Writer.prototype.renderPartial = function renderPartial(token, context, partials, tags) {
+	if (!partials) {
+		return;
+	}
 
-  var value = isFunction(partials) ? partials(token[1]) : partials[token[1]];
-  if (value != null) {
-    var lineHasNonSpace = token[6];
-    var tagIndex = token[5];
-    var indentation = token[4];
-    var indentedValue = value;
-    if (tagIndex == 0 && indentation) {
-      indentedValue = this.indentPartial(value, indentation, lineHasNonSpace);
-    }
-    return this.renderTokens(this.parse(indentedValue, tags), context, partials, indentedValue, tags);
-  }
+	const value = isFunction(partials) ? partials(token[1]) : partials[token[1]];
+	if (value != null) {
+		const lineHasNonSpace = token[6];
+		const tagIndex = token[5];
+		const indentation = token[4];
+		let indentedValue = value;
+		if (tagIndex == 0 && indentation) {
+			indentedValue = this.indentPartial(value, indentation, lineHasNonSpace);
+		}
+
+		return this.renderTokens(this.parse(indentedValue, tags), context, partials, indentedValue, tags);
+	}
 };
 
-Writer.prototype.unescapedValue = function unescapedValue (token, context) {
-  var value = context.lookup(token[1]);
-  if (value != null)
-    return value;
+Writer.prototype.unescapedValue = function unescapedValue(token, context) {
+	const value = context.lookup(token[1]);
+	if (value != null) {
+		return value;
+	}
 };
 
-Writer.prototype.escapedValue = function escapedValue (token, context) {
-  var value = context.lookup(token[1]);
-  if (value != null)
-    return mustache.escape(value);
+Writer.prototype.escapedValue = function escapedValue(token, context) {
+	const value = context.lookup(token[1]);
+	if (value != null) {
+		return mustache.escape(value);
+	}
 };
 
-Writer.prototype.rawValue = function rawValue (token) {
-  return token[1];
+Writer.prototype.rawValue = function rawValue(token) {
+	return token[1];
 };
 
 var mustache = {
-  name: 'mustache.js',
-  version: '4.0.1',
-  tags: [ '{{', '}}' ],
-  clearCache: undefined,
-  escape: undefined,
-  parse: undefined,
-  render: undefined,
-  Scanner: undefined,
-  Context: undefined,
-  Writer: undefined,
-  /**
+	name: 'mustache.js',
+	version: '4.0.1',
+	tags: ['{{', '}}'],
+	clearCache: undefined,
+	escape: undefined,
+	parse: undefined,
+	render: undefined,
+	Scanner: undefined,
+	Context: undefined,
+	Writer: undefined,
+	/**
    * Allows a user to override the default caching strategy, by providing an
    * object with set, get and clear methods. This can also be used to disable
    * the cache by setting it to the literal `undefined`.
    */
-  set templateCache (cache) {
-    defaultWriter.templateCache = cache;
-  },
-  /**
+	set templateCache(cache) {
+		defaultWriter.templateCache = cache;
+	},
+	/**
    * Gets the default or overridden caching object from the default writer.
    */
-  get templateCache () {
-    return defaultWriter.templateCache;
-  }
+	get templateCache() {
+		return defaultWriter.templateCache;
+	},
 };
 
 // All high-level mustache.* functions use this writer.
@@ -690,8 +756,8 @@ var defaultWriter = new Writer();
 /**
  * Clears all cached templates in the default writer.
  */
-mustache.clearCache = function clearCache () {
-  return defaultWriter.clearCache();
+mustache.clearCache = function clearCache() {
+	return defaultWriter.clearCache();
 };
 
 /**
@@ -699,8 +765,8 @@ mustache.clearCache = function clearCache () {
  * array of tokens it contains. Doing this ahead of time avoids the need to
  * parse templates on the fly as they are rendered.
  */
-mustache.parse = function parse (template, tags) {
-  return defaultWriter.parse(template, tags);
+mustache.parse = function parse(template, tags) {
+	return defaultWriter.parse(template, tags);
 };
 
 /**
@@ -709,14 +775,14 @@ mustache.parse = function parse (template, tags) {
  * array with two string values: the opening and closing tags used in the
  * template (e.g. [ "<%", "%>" ]). The default is to mustache.tags.
  */
-mustache.render = function render (template, view, partials, tags) {
-  if (typeof template !== 'string') {
-    throw new TypeError('Invalid template! Template should be a "string" ' +
-                        'but "' + typeStr(template) + '" was given as the first ' +
-                        'argument for mustache#render(template, view, partials)');
-  }
+mustache.render = function render(template, view, partials, tags) {
+	if (typeof template !== 'string') {
+		throw new TypeError('Invalid template! Template should be a "string" '
+                        + 'but "' + typeString(template) + '" was given as the first '
+                        + 'argument for mustache#render(template, view, partials)');
+	}
 
-  return defaultWriter.render(template, view, partials, tags);
+	return defaultWriter.render(template, view, partials, tags);
 };
 
 // Export the escaping function so that the user may override it.

@@ -4,7 +4,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "xo"
+    "test": "xo",
+    "start": "vite --port 3000"
   },
   "repository": {
     "type": "git",
@@ -18,13 +19,7 @@
   },
   "homepage": "https://github.com/umaar/train-timetable-coding-exercise#readme",
   "dependencies": {
-    "mustache": "^4.0.1"
-  },
-  "devDependencies": {
-    "xo": "^0.29.1",
-    "@umaar/personal-eslint-config": "latest"
-  },
-  "xo": {
-    "extends": "./node_modules/@umaar/personal-eslint-config/rules.json"
+    "mustache": "^4.2.0",
+    "vite": "^4.0.2"
   }
 }
