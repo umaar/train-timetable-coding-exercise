@@ -20,6 +20,6 @@
   "homepage": "https://github.com/umaar/train-timetable-coding-exercise#readme",
   "dependencies": {
     "mustache": "^4.2.0",
-    "vite": "^4.0.2"
+    "vite": "^4.0.5"
   }
 }
