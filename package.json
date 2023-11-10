@@ -1,25 +1,24 @@
 {
-  "name": "train-timetable-coding-exercise",
-  "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
-  "scripts": {
-    "test": "xo",
-    "start": "vite --port 3000"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/umaar/train-timetable-coding-exercise.git"
-  },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "bugs": {
-    "url": "https://github.com/umaar/train-timetable-coding-exercise/issues"
-  },
-  "homepage": "https://github.com/umaar/train-timetable-coding-exercise#readme",
-  "dependencies": {
-    "mustache": "^4.2.0",
-    "vite": "^4.0.2"
-  }
+	"name": "train-timetable-coding-exercise",
+	"version": "1.0.0",
+	"description": "",
+	"main": "index.js",
+	"scripts": {
+		"start": "vite --port 3000"
+	},
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/umaar/train-timetable-coding-exercise.git"
+	},
+	"keywords": [],
+	"author": "",
+	"license": "ISC",
+	"bugs": {
+		"url": "https://github.com/umaar/train-timetable-coding-exercise/issues"
+	},
+	"homepage": "https://github.com/umaar/train-timetable-coding-exercise#readme",
+	"dependencies": {
+		"mustache": "^4.2.0",
+		"vite": "^4.5.0"
+	}
 }

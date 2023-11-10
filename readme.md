@@ -18,7 +18,7 @@ In a terminal:
 
 ```sh
 npm i
-python -m SimpleHTTPServer
+npm start
 ```
 
 Then, view the page at [http://localhost:8000/](http://localhost:8000/)
@@ -26,5 +26,5 @@ Then, view the page at [http://localhost:8000/](http://localhost:8000/)
 #### To run tests
 
 ```sh
-make test # lints the codebase
+make test # doesn't do anything right now
 ```
