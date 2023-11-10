@@ -20,6 +20,6 @@ jobs:
                   cache: "npm"
 
             - name: Install dependencies
-              run: make install-ci
+              run: make install
 
             - run: make test
